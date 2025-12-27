@@ -1,4 +1,5 @@
 import express from "express";
+<<<<<<< HEAD
 import Equipment from "../models/Equipment.js";
 import mongoose from "mongoose";
 
@@ -32,5 +33,26 @@ router.get("/", async (req, res) => {
   const data = await Equipment.find().populate("maintenanceTeam");
   res.json(data);
 });
+=======
+import {
+  createEquipment,
+  getAllEquipments,
+  getEquipmentById,
+  updateEquipment,
+  deleteEquipment,
+  scrapEquipment,
+  getEquipmentRequests
+} from "../controllers/equipment.controller.js";
+
+const router = express.Router();
+
+router.post("/", createEquipment);
+router.get("/", getAllEquipments);
+router.get("/:id", getEquipmentById);
+router.put("/:id", updateEquipment);
+router.delete("/:id", deleteEquipment);
+router.put("/:id/scrap", scrapEquipment);
+router.get("/:id/maintenance", getEquipmentRequests);
+>>>>>>> 2455d38 (added controller, middleware, routes)
 
 export default router;
