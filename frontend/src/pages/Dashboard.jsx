@@ -168,7 +168,13 @@ export default function Dashboard() {
                   </tr>
                 ) : (
                   filteredRequests.map((r) => (
-                    <tr key={r._id} className="hover:bg-gray-50 transition-colors group">
+                  <tr
+  key={r._id}
+  onClick={() => navigate(`/requests/${r._id}`)}
+  className="hover:bg-gray-50 transition-colors group cursor-pointer"
+>
+
+
                       <td className="px-8 py-5">
                         <div className="font-medium text-gray-900 group-hover:text-blue-600 truncate max-w-[300px]">
                           {r.subject}

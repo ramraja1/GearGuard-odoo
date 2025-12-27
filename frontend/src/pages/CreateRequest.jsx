@@ -5,304 +5,238 @@ import api from "../api";
 export default function CreateRequest() {
   const navigate = useNavigate();
 
+  // ===== DATA =====
   const [equipment, setEquipment] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [teams, setTeams] = useState([]);
 
+  // ===== FORM =====
   const [form, setForm] = useState({
     subject: "",
     equipmentId: "",
     type: "Corrective",
   });
+
+  const [teamId, setTeamId] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // ===== MODALS =====
+  const [showCreateEq, setShowCreateEq] = useState(false);
+  const [newEqName, setNewEqName] = useState("");
+  const [creatingEq, setCreatingEq] = useState(false);
+
+  const [showCreateTeam, setShowCreateTeam] = useState(false);
+  const [newTeamName, setNewTeamName] = useState("");
+
+  // ===== LOAD DATA =====
   useEffect(() => {
     api.get("/equipment").then(res => setEquipment(res.data));
+    api.get("/teams").then(res => setTeams(res.data));
   }, []);
 
+  // ===== VALIDATION =====
   const validate = () => {
-    const newErrors = {};
-    if (!form.subject.trim()) newErrors.subject = "Please describe the problem";
-    if (!form.equipmentId) newErrors.equipmentId = "Please select equipment";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    const e = {};
+    if (!form.subject.trim()) e.subject = "Problem description required";
+    if (!form.equipmentId) e.equipmentId = "Select equipment";
+    if (!teamId) e.teamId = "Select maintenance team";
+    setErrors(e);
+    return Object.keys(e).length === 0;
   };
 
+  // ===== SUBMIT =====
   const submit = async () => {
-
     if (!validate()) return;
-    
-    try {
-      setLoading(true);
-      await api.post("/requests", form);
-      alert("Request created successfully!");
-      navigate(-1); // Go back to dashboard
-    } catch (err) {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setForm({ subject: "", equipmentId: "", type: "Corrective" });
-    setErrors({});
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 py-12 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* HEADER */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
-            New Maintenance Request
-          </h1>
-          <p className="text-xl text-gray-600 max-w-md mx-auto leading-relaxed">
-            Report equipment issues quickly and get them fixed faster
-          </p>
-        </div>
-
-        {/* FORM CARD */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200 p-8 md:p-10">
-          {/* PROBLEM DESCRIPTION */}
-          <div className="mb-8">
-            <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-              Problem Description *
-            </label>
-            <textarea
-              rows={4}
-              value={form.subject}
-              onChange={e => setForm({ ...form, subject: e.target.value })}
-              placeholder="e.g. Motor making unusual noise, hydraulic leak, overheating, vibration..."
-              className={`w-full px-5 py-4 border-2 rounded-2xl text-lg resize-vertical focus:outline-none focus:ring-4 transition-all duration-300 backdrop-blur-sm ${
-                errors.subject
-                  ? "border-red-300 bg-red-50/50 focus:ring-red-500/20 focus:border-red-400"
-                  : "border-gray-200 bg-white/50 hover:border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 hover:shadow-md"
-              }`}
-            />
-            {errors.subject && (
-              <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-                {errors.subject}
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* EQUIPMENT SELECT */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                Equipment *
-              </label>
-              <div className="relative">
-                <select
-                  value={form.equipmentId}
-                  onChange={e => setForm({ ...form, equipmentId: e.target.value })}
-                  className={`w-full appearance-none px-5 py-4 border-2 bg-white/50 rounded-2xl text-lg focus:outline-none focus:ring-4 transition-all duration-300 ${
-                    errors.equipmentId
-                      ? "border-red-300 focus:ring-red-500/20 focus:border-red-400"
-                      : "border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 hover:shadow-md"
-                  }`}
-                >
-                  <option value="">Choose equipment...</option>
-                  {equipment.map(e => (
-                    <option key={e._id} value={e._id}>
-                      {e.name}
-                    </option>
-                  ))}
-                </select>
-                <svg className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-              {errors.equipmentId && (
-                <p className="mt-2 text-sm text-red-600">{errors.equipmentId}</p>
-              )}
-            </div>
-
-            {/* REQUEST TYPE */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-4 uppercase tracking-wide">
-                Request Type
-              </label>
-              <div className="space-y-2">
-                {["Corrective", "Preventive"].map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setForm({ ...form, type })}
-                    className={`w-full flex items-center justify-center gap-3 p-4 rounded-2xl border-2 font-semibold transition-all duration-300 group hover:shadow-md ${
-                      form.type === type
-                        ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white border-blue-500 shadow-lg hover:from-blue-600 hover:to-blue-700"
-                        : "bg-white/50 border-gray-200 text-gray-700 hover:border-blue-300 hover:text-blue-700"
-                    }`}
-                  >
-                    <div className={`w-3 h-3 rounded-full border-2 transition-all ${
-                      form.type === type 
-                        ? "bg-white border-white scale-110" 
-                        : "border-gray-400 group-hover:border-blue-400"
-                    }`} />
-                    {type}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* ACTIONS */}
-          <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
-            <button
-              type="button"
-              onClick={resetForm}
-              className="flex-1 py-4 px-6 border border-gray-300 text-gray-700 font-semibold rounded-2xl hover:bg-gray-50 hover:border-gray-400 transition-all duration-200"
-            >
-              Reset Form
-            </button>
-            <button
-              type="button"
-              onClick={submit}
-              disabled={loading}
-              className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                  Create Request
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* TIP */}
-        <div className="mt-8 p-6 bg-blue-50/80 border border-blue-100 rounded-2xl text-center">
-          <p className="text-blue-800 font-medium">
-            💡 <strong>Tip:</strong> Include specific details like "Motor #3 bearing noise" for faster diagnosis
-          </p>
-        </div>
-=======
-    if (!form.subject || !form.equipmentId) {
-      alert("Please fill all required fields");
-      return;
-    }
 
     try {
       setLoading(true);
-      await api.post("/requests", form);
-      alert("Maintenance request created successfully");
-      navigate("/"); // back to dashboard
-    } catch (err) {
+      await api.post("/requests", {
+        ...form,
+        teamId,
+      });
+      alert("Request created successfully");
+      navigate(-1);
+    } catch {
       alert("Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  // ===== UI =====
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-gray-100 p-8">
+      <div className="max-w-2xl mx-auto bg-white rounded-xl shadow p-8">
 
-      {/* TOP NAV */}
-      <div className="flex gap-6 text-sm font-medium text-gray-600 mb-6">
-        <span
-          onClick={() => navigate("/")}
-          className="cursor-pointer hover:text-black"
-        >
-          Dashboard
-        </span>
-        <span className="text-black font-semibold">New Request</span>
-        <span
-          onClick={() => navigate("/kanban")}
-          className="cursor-pointer hover:text-black"
-        >
-          Kanban
-        </span>
-      </div>
+        <h1 className="text-2xl font-bold mb-6">Create Maintenance Request</h1>
 
-      {/* FORM CARD */}
-      <div className="max-w-xl bg-white rounded-lg shadow p-6">
-
-        <h1 className="text-xl font-bold mb-6 text-gray-800">
-          Create Maintenance Request
-        </h1>
+        {/* TEAM */}
+        <div className="mb-5">
+          <label className="block text-sm font-medium mb-1">
+            Maintenance Team *
+          </label>
+          <div className="flex gap-2">
+            <select
+              value={teamId}
+              onChange={e => setTeamId(e.target.value)}
+              className="flex-1 border px-3 py-2 rounded"
+            >
+              <option value="">Select team</option>
+              {teams.map(t => (
+                <option key={t._id} value={t._id}>{t.name}</option>
+              ))}
+            </select>
+            <button
+              onClick={() => setShowCreateTeam(true)}
+              className="border px-3 rounded"
+            >
+              + Add
+            </button>
+          </div>
+          {errors.teamId && <p className="text-red-500 text-sm">{errors.teamId}</p>}
+        </div>
 
         {/* SUBJECT */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
-            Issue / Subject <span className="text-red-500">*</span>
+        <div className="mb-5">
+          <label className="block text-sm font-medium mb-1">
+            Problem *
           </label>
-          <input
-            type="text"
-            placeholder="e.g. Printer not working"
+          <textarea
+            rows={3}
             value={form.subject}
             onChange={e => setForm({ ...form, subject: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border px-3 py-2 rounded"
           />
+          {errors.subject && <p className="text-red-500 text-sm">{errors.subject}</p>}
         </div>
 
         {/* EQUIPMENT */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
-            Equipment <span className="text-red-500">*</span>
+        <div className="mb-5">
+          <label className="block text-sm font-medium mb-1">
+            Equipment *
           </label>
           <select
             value={form.equipmentId}
-            onChange={e => setForm({ ...form, equipmentId: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={e => {
+              if (e.target.value === "__create__") setShowCreateEq(true);
+              else setForm({ ...form, equipmentId: e.target.value });
+            }}
+            className="w-full border px-3 py-2 rounded"
           >
-            <option value="">Select Equipment</option>
+            <option value="">Select equipment</option>
             {equipment.map(e => (
-              <option key={e._id} value={e._id}>
-                {e.name}
-              </option>
+              <option key={e._id} value={e._id}>{e.name}</option>
             ))}
+            <option value="__create__">➕ Create equipment</option>
           </select>
+          {errors.equipmentId && (
+            <p className="text-red-500 text-sm">{errors.equipmentId}</p>
+          )}
         </div>
 
         {/* TYPE */}
         <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-600 mb-1">
+          <label className="block text-sm font-medium mb-1">
             Maintenance Type
           </label>
           <select
             value={form.type}
             onChange={e => setForm({ ...form, type: e.target.value })}
-            className="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full border px-3 py-2 rounded"
           >
-            <option value="Corrective">Corrective (Breakdown)</option>
-            <option value="Preventive">Preventive (Scheduled)</option>
+            <option value="Corrective">Corrective</option>
+            <option value="Preventive">Preventive</option>
           </select>
         </div>
 
         {/* ACTIONS */}
         <div className="flex justify-end gap-3">
           <button
-            onClick={() => navigate("/")}
-            className="px-4 py-2 text-sm border rounded-md hover:bg-gray-50"
+            onClick={() => navigate(-1)}
+            className="border px-4 py-2 rounded"
           >
             Cancel
           </button>
-
           <button
             onClick={submit}
             disabled={loading}
-            className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-60"
+            className="bg-blue-600 text-white px-4 py-2 rounded"
           >
-            {loading ? "Creating..." : "Create Request"}
+            {loading ? "Creating..." : "Create"}
           </button>
         </div>
+      </div>
 
+      {/* CREATE EQUIPMENT MODAL */}
+      {showCreateEq && (
+        <Modal title="Create Equipment" onClose={() => setShowCreateEq(false)}>
+          <input
+            value={newEqName}
+            onChange={e => setNewEqName(e.target.value)}
+            className="w-full border px-3 py-2 rounded mb-4"
+            placeholder="Equipment name"
+          />
+          <button
+            onClick={async () => {
+              if (!newEqName) return;
+              setCreatingEq(true);
+              const res = await api.post("/equipment", {
+                name: newEqName,
+                maintenanceTeam: teamId,
+              });
+              setEquipment([...equipment, res.data]);
+              setForm({ ...form, equipmentId: res.data._id });
+              setNewEqName("");
+              setShowCreateEq(false);
+              setCreatingEq(false);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Create
+          </button>
+        </Modal>
+      )}
+
+      {/* CREATE TEAM MODAL */}
+      {showCreateTeam && (
+        <Modal title="Create Team" onClose={() => setShowCreateTeam(false)}>
+          <input
+            value={newTeamName}
+            onChange={e => setNewTeamName(e.target.value)}
+            className="w-full border px-3 py-2 rounded mb-4"
+            placeholder="Team name"
+          />
+          <button
+            onClick={async () => {
+              if (!newTeamName) return;
+              const res = await api.post("/teams", { name: newTeamName });
+              setTeams([...teams, res.data]);
+              setTeamId(res.data._id);
+              setNewTeamName("");
+              setShowCreateTeam(false);
+            }}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            Create
+          </button>
+        </Modal>
+      )}
+    </div>
+  );
+}
+
+// ===== SIMPLE MODAL =====
+function Modal({ title, children, onClose }) {
+  return (
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-96">
+        <h3 className="text-lg font-semibold mb-4">{title}</h3>
+        {children}
+        <div className="mt-4 text-right">
+          <button onClick={onClose} className="text-sm text-gray-600">
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
