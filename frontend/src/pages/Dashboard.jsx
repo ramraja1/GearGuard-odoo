@@ -122,7 +122,11 @@ export default function Dashboard() {
               </tr>
             ) : (
               filteredRequests.map(r => (
-                <tr key={r._id} className="border-b hover:bg-gray-50">
+                <tr key={r._id} 
+  onClick={() => navigate(`/requests/${r._id}`)}
+  className="border-b hover:bg-gray-50 cursor-pointer"
+>
+
                   <td className="p-3">{r.subject}</td>
                   <td>—</td>
                   <td>{r.team?.name || "-"}</td>

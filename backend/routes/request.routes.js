@@ -59,5 +59,14 @@ router.patch("/:id/status", async (req, res) => {
   res.json(request);
 });
 
+router.get("/:id", async (req, res) => {
+  const data = await Request.findById(req.params.id)
+    .populate("equipment")
+    .populate("team");
+
+  res.json(data);
+});
+
+
 
 export default router;
