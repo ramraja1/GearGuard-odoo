@@ -5,6 +5,20 @@ import mongoose from "mongoose";
 
 const router = express.Router();
 
+// GET ALL REQUESTS (Dashboard + Kanban)
+router.get("/", async (req, res) => {
+  try {
+    const data = await Request.find()
+      .populate("equipment")
+      .populate("team");
+
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 /* CREATE REQUEST */
 router.post("/", async (req, res) => {
   try {
@@ -44,5 +58,6 @@ router.patch("/:id/status", async (req, res) => {
   await request.save();
   res.json(request);
 });
+
 
 export default router;
