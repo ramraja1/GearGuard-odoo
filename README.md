@@ -98,7 +98,7 @@ GearGuard/
 https://github.com/ramraja1/GearGuard-odoo
 
 🔗 **Live Application:**  
-https://your-live-project-link.com  
+https://
 
 *(Deployed using Vercel)*
 
@@ -107,9 +107,9 @@ https://your-live-project-link.com
 ## 🎥 Demo Video
 
 📺 **Project Demo Video:**  
-https://your-demo-video-link.com  
+https:// 
 
-*(YouTube / Google Drive link)*
+*(Google Drive link)*
 
 ---
 
@@ -119,4 +119,5 @@ https://your-demo-video-link.com
 ```bash
 git clone https://github.com/ramraja1/GearGuard-odoo.git
 cd GearGuard
+
 
